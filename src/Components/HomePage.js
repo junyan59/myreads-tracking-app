@@ -32,9 +32,9 @@ class HomePage extends Component {
                 </div>
                 <div className="list-books-content">
                     <div>
-                        <BookShelf shelfTitle='Currently Reading' books={this.state.currentlyReading} />
-                        <BookShelf shelfTitle='Want to Read' books={this.state.wantToRead} />
-                        <BookShelf shelfTitle='Read' books={this.state.read} />
+                        <BookShelf shelfTitle='Currently Reading' books={this.props.currentlyReading} onMoveBook={this.props.onMoveBook}/>
+                        <BookShelf shelfTitle='Want to Read' books={this.props.wantToRead} onMoveBook={this.props.onMoveBook}/>
+                        <BookShelf shelfTitle='Read' books={this.props.read} onMoveBook={this.props.onMoveBook}/>
                     </div>
                 </div>
                 <div className="open-search">
