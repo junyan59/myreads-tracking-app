@@ -1,29 +1,8 @@
 import React, {Component} from 'react';
 import BookShelf from './BookShelf.js';
 import {Link} from 'react-router-dom';
-import * as BooksAPI from '../BooksAPI';
 
 class HomePage extends Component {
-    constructor(props) {
-      super(props);
-
-      this.state = {
-        currentlyReading: [],
-        wantToRead: [],
-        read: []
-      };
-    }
-
-    componentDidMount() {
-      BooksAPI.getAll().then(books => {
-        this.setState({
-          currentlyReading: books.filter(book => book.shelf === 'currentlyReading'),
-          wantToRead: books.filter(book => book.shelf === 'wantToRead'),
-          read: books.filter(book => book.shelf === 'read')
-        });
-      });
-    }
-
     render() {
         return (
             <div className="list-books">
