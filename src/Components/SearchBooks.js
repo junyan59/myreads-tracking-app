@@ -1,51 +1,36 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import Book from './Book';
-import { search } from '../BooksAPI';
+import * as BooksAPI from '../BooksAPI';
+import PropTypes from 'prop-types';
 
 class SearchBooks extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      results: [],
-      searching: false,
-      searchFailed: false
+    static propTypes = {
+        books: PropTypes.array.isRequired,
+        onChangeShelf: PropTypes.func.isRequired
+    };
+    state = {
+        query: ''
+    };
+    updateQuery = (query) => {
+        this.setState(() => ({
+          query: query.trim()
+        }))
     };
 
-    this.handleInputChange = this.handleInputChange.bind(this);
-   }
-
-   handleInputChange(e) {
-    const keyword = e.target.value;
-    this.setState({
-      searching: true,
-      searchFailed: false
-    });
-
-    search(keyword, 200)
-      .then(results => {
-        this.setState({ results, searching: false });
-      })
-      .catch(() => {
-        this.setState({ results: [], searching: false, searchFailed: true });
-      });
-    }
-
     render() {
-        let Results;
+        const { query } = this.state
+        const { books, changeShelf } = this.props
 
-        if (this.state.searchFailed) {
-          Results = () => <div>Oops,searching failed.</div>;
-        } else if (this.state.searching) {
-          Results = () => <div>Finding books ...</div>;
-        } else {
-          Results = () => <Books books={this.state.results} moveBook={this.props.moveBook} />;
-        }
+        const showingContacts = query === ''
+          ? books
+          : books.filter((c) => (
+              c.title.toLowerCase().includes(query.toLowerCase())
+            ))
 
         return (
             <div className="search-books">
                 <div className="search-books-bar">
-                    <Link to="/" className="close-search">Close</Link>
                     <div className="search-books-input-wrapper">
                         {/*
                             NOTES: The search from BooksAPI is limited to a particular set of search terms.
@@ -54,11 +39,28 @@ class SearchBooks extends Component {
                             However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
                             you don't find a specific author or title. Every search is limited by search terms.
                         */}
-                        <input type="text" placeholder="Search by title or author" onChange={this.handleInputChange}/>
+                        <input
+                          className="search-books-input"
+                          type="text"
+                          placeholder="Search by title or author"
+                          value={query}
+                          onChange={(event) => this.updateQuery(event.target.value)}
+                        />
                     </div>
+                    <Link
+                          to="/"
+                          className="close-search">Close
+                    </Link>
                 </div>
                 <div className="search-books-results">
-                    <Results />
+                    <ol className="books-grid">
+                        {this.props.books.map((book) => (
+                            <li key={book.id}>
+                                <Book book={book}
+                                onChangeShelf={this.props.onChangeShelf} />
+                            </li>
+                        ))}
+                    </ol>
                 </div>
             </div>
         );
