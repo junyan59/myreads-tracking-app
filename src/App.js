@@ -6,37 +6,64 @@ import HomePage from './Components/HomePage';
 import * as BooksAPI from '../BooksAPI';
 
 class BooksApp extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentlyReading: [],
-      wantToRead: [],
-      read: []
-    };
-  }
+  state = {
+      books: []
+  };
 
   componentDidMount() {
-    BooksAPI.getAll().then(books => {
-      this.setState({
-        currentlyReading: books.filter(book => book.shelf === 'currentlyReading'),
-        wantToRead: books.filter(book => book.shelf === 'wantToRead'),
-        read: books.filter(book => book.shelf === 'read')
-      });
-    });
+      this.getBooks();
   }
 
+  getBooks() {
+      BooksAPI.getAll().then((books) => {
+          this.setState({books});
+      });
+  }
+
+  onChangeShelf = (book, newshelf) => {
+      BooksAPI.update(book, newshelf)
+          .then(
+              this.setState((state) => ({
+                  books: state.books.map(b => {
+                      if (b.title === book.title) {
+                          b.shelf = shelf;
+                          return b
+                      } else {
+                          return b
+                      }
+                  }),
+              }))
+          )
+  };
+
   render() {
+    const currentlyReading = this.state.books.filter((book) => book.shelf === 'currentlyReading')
+    const wantToRead = this.state.books.filter((book) => book.shelf === 'wantToRead')
+    const read = this.state.books.filter((book) => book.shelf === 'read')
+
     return (
       <div className="app">
-          <Route path="/search" component={SearchBooks onMoveBook={this.props.onMoveBook}/>
           <Route exact path="/" render={() => (
-            <HomePage
-                currentlyReading={currentlyReading}
-                wantToRead={wantToRead}
-                read={read}
-                onShelfChange={this.onMoveBook}
-            />
+              <div className="list-books">
+                  <div className="list-books-title">
+                      <h1>My Reads Tracking App</h1>
+                  </div>
+                  <div className="list-books-content">
+                      <HomePage
+                          currentlyReading={currentlyReading}
+                          wantToRead={wantToRead}
+                          read={read}
+                          onChangeShelf={this.onChangeShelf}
+                      />
+                  </div>
+              </div>
+          )}/>
+          <Route path="/search" render={({history}) => (
+              <SearchBooks
+                  onChangeShelf={this.onChangeShelf}
+                  books={this.state.searchBooks}
+                  updateQuery={this.updateQuery}
+              />
           )}/>
       </div>
     )
